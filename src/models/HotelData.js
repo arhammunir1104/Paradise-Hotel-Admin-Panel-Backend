@@ -49,6 +49,9 @@ let HotelDataSchema = new mongoose.Schema({
     hotel_contact_no: {
         type : String
     },
+    hotel_des:{
+        type: String
+    },
     tokens :[{
         token: {
             type: String

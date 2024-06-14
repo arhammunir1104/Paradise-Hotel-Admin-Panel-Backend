@@ -1157,6 +1157,59 @@ app.post('/search/reservations', (req, res)=>{
 });
 
 
+app.post("/getHotelData", (req, res)=>{
+    let {token} = req.body;
+    async function getData(){
+        try{
+            let verify = await verification({token: token});
+            let data = await HotelData.findOne({$and: [{admin_access: "active"}, {_id: verify._id}]}).select({_id: 1, hotel_name : 1, hotel_contact_no: 1, hotel_add: 1, hotel_des: 1});
+            if(data!== null){
+                res.status(200).json({msg: "Found Data", status: true, data:data});
+            }
+            else{
+                res.status(200).json({msg: "Data Not Found", status: false, data:[]});
+            }
+        }
+        catch(e){
+            console.log("Error while fetching hotel data", e)
+        }
+    };
+    getData();
+
+});
+
+app.post("/updateHotelData", upload.single("hotel_logo") ,(req, res)=>{
+    // console.log(req);
+    console.log(req.body);
+
+    async function saveHotelData(){
+        try{
+            
+            let hotel_contact_no = req.body.hotel_contact_no;
+            let hotel_add = req.body.hotel_add;
+            let hotel_des = req.body.hotel_des;
+            let hotel_id = req.body.hotel_id;
+                let hotel_name = req.body.hotel_name;
+
+
+            let data = await HotelData.findByIdAndUpdate({_id: hotel_id},{
+                $set:{
+                    hotel_name: hotel_name,
+                hotel_contact_no :hotel_contact_no,
+                hotel_add : hotel_add,
+                hotel_des : hotel_des,
+                }
+            });
+            console.log("Data Saved", data);  // Checking if data is saved in database
+            res.status(201).json({msg: "Data Updated Successfully", status: true,});
+        }
+        catch(e){
+            console.log("Hotel Data saving error", e);
+            res.status(201).json({msg: "Error while Creating Hotel Account", status: false});
+        }
+    };
+    saveHotelData();
+});
 
 app.listen(PORT, ()=>{
     console.log(`Server is active on port ${PORT}`);
