@@ -479,19 +479,22 @@ app.post("/updateroom" ,(req, res)=>{
 // upload2.fields([{name: "img1" }, {name: "img2" } , {name: "img3" }, {name: "img4" }, {name: "img5" }, {name: "img6" }])
 
 app.post("/uploadroomimage" , (req, res)=>{
-    // console.log(req.files);
+    console.log(req.files);
+    console.log( "Image", req.files.img1[0])
     async function uploadImg(){
         try{   
             const room_id = req.body.room_id;
             console.log("PArams", room_id);
             let files = req.files;
             // console.log(files);
+            console.log("Start uploading image on cloudinary");
             let i1 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img1[0].path);
             let i2 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img2[0].path);
             let i3 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img3[0].path);
             let i4 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img4[0].path);
             let i5 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img5[0].path);
             let i6 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img6[0].path);
+            console.log("Saved uploading image on cloudinary");
             let img_arr = [
                 i1.secure_url,
                 i2.secure_url,
@@ -500,6 +503,7 @@ app.post("/uploadroomimage" , (req, res)=>{
                 i5.secure_url,
                 i6.secure_url,
             ]
+            console.log("Image url on cloudinary", img_arr)
             // console.log(img_arr);
             let main_img =  i1.secure_url;
             let data = await RoomData.findByIdAndUpdate({_id: room_id}, {
@@ -508,9 +512,9 @@ app.post("/uploadroomimage" , (req, res)=>{
                     room_images : img_arr,
                 }
             });
-            // console.log( "Room Data" ,data);
+            console.log( "Room Data" ,data);
             let hotel_data = await HotelData.findOne({_id: data.hotel_data[0].hotel_id});
-            // console.log( "Hotel Data" ,hotel_data);
+            console.log( "Hotel Data" ,hotel_data);
             let rooms= hotel_data.hotel_rooms;
             // console.log(room_id, " ", req.body.room_id);
             let d = rooms.map((val)=>{
@@ -523,6 +527,7 @@ app.post("/uploadroomimage" , (req, res)=>{
                 }
             });
             hotel_data.hotel_rooms  = d;
+            console.log("Saved room pic on hotel data");
             await hotel_data.save();
             // fs.unlink(__dirname+"\\"+req.files.img1[0].path, ()=>{console.log("Image 1 deleted")});
             // fs.unlink(__dirname+"\\"+req.files.img2[0].path, ()=>{console.log("Image 2 deleted")});
