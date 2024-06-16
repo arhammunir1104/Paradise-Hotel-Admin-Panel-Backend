@@ -63,15 +63,17 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage })
 
 // Multer storage Multiple (Room images)
-const storage2 = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, './public/images')
-    },
-    filename: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`)
-    }
-  })
+// const storage2 = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, './public/images')
+//     },
+//     filename: function (req, file, cb) {
+//       cb(null, `${Date.now()}-${file.originalname}`)
+//     }
+//   })
   
+  
+const storage2 = multer.memoryStorage();
 const upload2 = multer({ storage: storage2 })
 
 //Routing
@@ -272,50 +274,110 @@ app.post("/createhotel",(req, res)=>{
 
 
 
-app.post("/updateHotel", upload.single("hotel_logo") ,(req, res)=>{
-    // console.log(req);
-    console.log(req.body);
-    console.log(req.file);
+// app.post("/updateHotel", upload.single("hotel_logo") ,(req, res)=>{
+//     // console.log(req);
+//     console.log(req.body);
+//     console.log(req.file);
 
-    async function saveHotelData(){
-        try{
+//     async function saveHotelData(){
+//         try{
             
-            let r = await cloudinary.uploader.upload(__dirname+"/public/hotellogos/"+req.file.filename);
-            let hotel_logo = r.secure_url;
-            let hotel_contact_no = req.body.hotel_contact_no;
-            let hotel_city = req.body.hotel_city;
-            let hotel_add = req.body.hotel_add;
-            let hotel_des = req.body.hotel_des;
-            let hotel_id = req.body.hotel_id;
-            // console.log( "Hotel logo" ,hotel_logo);
-            // console.log("hotel name", hotel_name);
+//             let r = await cloudinary.uploader.upload(__dirname+"/public/hotellogos/"+req.file.filename);
+//             let hotel_logo = r.secure_url;
+//             let hotel_contact_no = req.body.hotel_contact_no;
+//             let hotel_city = req.body.hotel_city;
+//             let hotel_add = req.body.hotel_add;
+//             let hotel_des = req.body.hotel_des;
+//             let hotel_id = req.body.hotel_id;
+//             // console.log( "Hotel logo" ,hotel_logo);
+//             // console.log("hotel name", hotel_name);
 
 
-            let data = await HotelData.findByIdAndUpdate({_id: hotel_id},{
-                $set:{
-                hotel_logo: hotel_logo,
-                hotel_contact_no :hotel_contact_no,
-                hotel_city :hotel_city,
-                hotel_add : hotel_add,
-                hotel_des : hotel_des,
-                hotel_status : "completed"
-                }
-            });
-            let token = await data.generateAuthToken();
-            fs.unlink(__dirname+"/public/hotellogos/"+req.file.filename, ()=>{console.log("Hotel Logo deleted")});
-            // console.log("Token in Backend", token); // Checking if token is retrieveing in backend 
-            // console.log("Data Saved", data);  // Checking if data is saved in database
-            res.status(201).json({msg: "Account Created Successfully", status: true,});
-            // console.log(data);
-            // res.send("Hotel Data Saved Successfully");
-        }
-        catch(e){
-            console.log("Hotel Data saving error", e);
-            res.status(201).json({msg: "Error while Creating Hotel Account", status: false});
-        }
-    };
-    saveHotelData();
-});
+//             let data = await HotelData.findByIdAndUpdate({_id: hotel_id},{
+//                 $set:{
+//                 hotel_logo: hotel_logo,
+//                 hotel_contact_no :hotel_contact_no,
+//                 hotel_city :hotel_city,
+//                 hotel_add : hotel_add,
+//                 hotel_des : hotel_des,
+//                 hotel_status : "completed"
+//                 }
+//             });
+//             let token = await data.generateAuthToken();
+//             fs.unlink(__dirname+"/public/hotellogos/"+req.file.filename, ()=>{console.log("Hotel Logo deleted")});
+//             // console.log("Token in Backend", token); // Checking if token is retrieveing in backend 
+//             // console.log("Data Saved", data);  // Checking if data is saved in database
+//             res.status(201).json({msg: "Account Created Successfully", status: true,});
+//             // console.log(data);
+//             // res.send("Hotel Data Saved Successfully");
+//         }
+//         catch(e){
+//             console.log("Hotel Data saving error", e);
+//             res.status(201).json({msg: "Error while Creating Hotel Account", status: false});
+//         }
+//     };
+//     saveHotelData();
+// });
+
+
+app.post("/updateHotel", upload.single("hotel_logo"), async (req, res) => {
+    try {
+      // Extract text data from req.body
+      const { hotel_contact_no, hotel_city, hotel_add, hotel_des, hotel_id } = req.body;
+      console.log( "req.body" , req.body);
+      console.log( "req.file" , req.file);
+  
+      // Upload hotel_logo to Cloudinary
+      let result;
+      if (req.file && req.file.buffer) {
+        console.log( "req.file && req.file.buffer");
+        result = await new Promise((resolve, reject) => {
+          const upload_stream = cloudinary.uploader.upload_stream(
+            (result,  error) => {
+                console.log("Error", error);
+                console.log("Result", result);
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          upload_stream.end(req.file.buffer);
+        });
+      } else {
+        throw new Error('No hotel_logo file uploaded');
+      }
+  
+      console.log("Result", result);
+      // Save image URL from Cloudinary
+      const hotel_logo = result.secure_url;
+      console.log("hotel_logo", hotel_logo);
+      // Update hotel data in the database
+      const hotelData = await HotelData.findByIdAndUpdate(
+        { _id: hotel_id },
+        {
+          $set: {
+            hotel_logo: hotel_logo,
+            hotel_contact_no: hotel_contact_no,
+            hotel_city: hotel_city,
+            hotel_add: hotel_add,
+            hotel_des: hotel_des,
+            hotel_status: "completed"
+          }
+        },
+        { new: true } // To return the updated document
+      );
+  
+      if (!hotelData) {
+        throw new Error('Hotel not found');
+      }
+  
+      // Optionally, handle additional operations related to hotel data
+      console.log("hotelData", hotelData);
+      res.status(201).json({ msg: "Hotel Data Updated Successfully", status: true });
+    } catch (error) {
+      console.error("Error updating hotel data:", error);
+      res.status(500).json({ msg: "Failed to update hotel data", status: false });
+    }
+  });
 
 
 // app.get("/createroom", (req, res)=>{
