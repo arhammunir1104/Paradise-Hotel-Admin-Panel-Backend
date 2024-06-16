@@ -476,123 +476,123 @@ app.post("/updateroom" ,(req, res)=>{
 
 
 
-// app.post("/uploadroomimage", 
 // upload2.fields([{name: "img1" }, {name: "img2" } , {name: "img3" }, {name: "img4" }, {name: "img5" }, {name: "img6" }])
-// ,(req, res)=>{
-//     // console.log(req.files);
-//     async function uploadImg(){
-//         try{   
-//             const room_id = req.body.room_id;
-//             console.log("PArams", room_id);
-//             let files = req.files;
-//             // console.log(files);
-//             let i1 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img1[0].path);
-//             let i2 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img2[0].path);
-//             let i3 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img3[0].path);
-//             let i4 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img4[0].path);
-//             let i5 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img5[0].path);
-//             let i6 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img6[0].path);
-//             let img_arr = [
-//                 i1.secure_url,
-//                 i2.secure_url,
-//                 i3.secure_url,
-//                 i4.secure_url,
-//                 i5.secure_url,
-//                 i6.secure_url,
-//             ]
-//             // console.log(img_arr);
-//             let main_img =  i1.secure_url;
-//             let data = await RoomData.findByIdAndUpdate({_id: room_id}, {
-//                 $set:{
-//                     room_main_img : main_img,
-//                     room_images : img_arr,
-//                 }
-//             });
-//             // console.log( "Room Data" ,data);
-//             let hotel_data = await HotelData.findOne({_id: data.hotel_data[0].hotel_id});
-//             // console.log( "Hotel Data" ,hotel_data);
-//             let rooms= hotel_data.hotel_rooms;
-//             // console.log(room_id, " ", req.body.room_id);
-//             let d = rooms.map((val)=>{
-//                 if(val.room_id === room_id){
-//                     val.room_pic = main_img;
-//                     return(val);
-//                 }
-//                 else{
-//                     return(val)
-//                 }
-//             });
-//             hotel_data.hotel_rooms  = d;
-//             await hotel_data.save();
-//             fs.unlink(__dirname+"\\"+req.files.img1[0].path, ()=>{console.log("Image 1 deleted")});
-//             fs.unlink(__dirname+"\\"+req.files.img2[0].path, ()=>{console.log("Image 2 deleted")});
-//             fs.unlink(__dirname+"\\"+req.files.img3[0].path, ()=>{console.log("Image 3 deleted")});
-//             fs.unlink(__dirname+"\\"+req.files.img4[0].path, ()=>{console.log("Image 4 deleted")});
-//             fs.unlink(__dirname+"\\"+req.files.img5[0].path, ()=>{console.log("Image 5 deleted")});
-//             fs.unlink(__dirname+"\\"+req.files.img6[0].path, ()=>{console.log("Image 6 deleted")});
-//             res.status(201).json({msg: "Room Images Saved", status: true,});
 
-//         }
-//         catch(e){
-//             console.log("Image uploading error", e);
-//             res.status(201).json({msg: "Saving Room Images Unsuccessfull", status: false,});
-//         }
-//     };
-//     uploadImg()
-// });
-
-
-app.post("/uploadroomimage", 
-    upload2.fields([{ name: "img1" }, { name: "img2" }, { name: "img3" }, { name: "img4" }, { name: "img5" }, { name: "img6" }]),
-    (req, res) => {
-      async function uploadImg() {
-        try {   
-          const room_id = req.body.room_id;
-          let files = req.files;
-          let img_arr = [];
-          for (let key in files) {
-            if (files.hasOwnProperty(key)) {
-              let result = await cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
-                if (error) {
-                  throw new Error(error);
+app.post("/uploadroomimage" , (req, res)=>{
+    // console.log(req.files);
+    async function uploadImg(){
+        try{   
+            const room_id = req.body.room_id;
+            console.log("PArams", room_id);
+            let files = req.files;
+            // console.log(files);
+            let i1 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img1[0].path);
+            let i2 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img2[0].path);
+            let i3 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img3[0].path);
+            let i4 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img4[0].path);
+            let i5 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img5[0].path);
+            let i6 = await cloudinary.uploader.upload(__dirname+"\\"+req.files.img6[0].path);
+            let img_arr = [
+                i1.secure_url,
+                i2.secure_url,
+                i3.secure_url,
+                i4.secure_url,
+                i5.secure_url,
+                i6.secure_url,
+            ]
+            // console.log(img_arr);
+            let main_img =  i1.secure_url;
+            let data = await RoomData.findByIdAndUpdate({_id: room_id}, {
+                $set:{
+                    room_main_img : main_img,
+                    room_images : img_arr,
                 }
-                return result;
-              }).end(files[key][0].buffer);
-              img_arr.push(result.secure_url);
-            }
-          }
-          
-          let main_img = img_arr[0];
-          let data = await RoomData.findByIdAndUpdate({ _id: room_id }, {
-            $set: {
-              room_main_img: main_img,
-              room_images: img_arr,
-            }
-          });
-  
-          let hotel_data = await HotelData.findOne({ _id: data.hotel_data[0].hotel_id });
-          let rooms = hotel_data.hotel_rooms;
-          let d = rooms.map((val) => {
-            if (val.room_id === room_id) {
-              val.room_pic = main_img;
-              return val;
-            } else {
-              return val;
-            }
-          });
-          hotel_data.hotel_rooms = d;
-          await hotel_data.save();
-  
-          res.status(201).json({ msg: "Room Images Saved", status: true });
-  
-        } catch (e) {
-          console.log("Image uploading error", e);
-          res.status(201).json({ msg: "Saving Room Images Unsuccessful", status: false });
+            });
+            // console.log( "Room Data" ,data);
+            let hotel_data = await HotelData.findOne({_id: data.hotel_data[0].hotel_id});
+            // console.log( "Hotel Data" ,hotel_data);
+            let rooms= hotel_data.hotel_rooms;
+            // console.log(room_id, " ", req.body.room_id);
+            let d = rooms.map((val)=>{
+                if(val.room_id === room_id){
+                    val.room_pic = main_img;
+                    return(val);
+                }
+                else{
+                    return(val)
+                }
+            });
+            hotel_data.hotel_rooms  = d;
+            await hotel_data.save();
+            // fs.unlink(__dirname+"\\"+req.files.img1[0].path, ()=>{console.log("Image 1 deleted")});
+            // fs.unlink(__dirname+"\\"+req.files.img2[0].path, ()=>{console.log("Image 2 deleted")});
+            // fs.unlink(__dirname+"\\"+req.files.img3[0].path, ()=>{console.log("Image 3 deleted")});
+            // fs.unlink(__dirname+"\\"+req.files.img4[0].path, ()=>{console.log("Image 4 deleted")});
+            // fs.unlink(__dirname+"\\"+req.files.img5[0].path, ()=>{console.log("Image 5 deleted")});
+            // fs.unlink(__dirname+"\\"+req.files.img6[0].path, ()=>{console.log("Image 6 deleted")});
+            res.status(201).json({msg: "Room Images Saved", status: true,});
+
         }
-      }
-      uploadImg();
-    }
-  );
+        catch(e){
+            console.log("Image uploading error", e);
+            res.status(201).json({msg: "Saving Room Images Unsuccessfull", status: false,});
+        }
+    };
+    uploadImg()
+});
+
+
+// app.post("/uploadroomimage", 
+//     upload2.fields([{ name: "img1" }, { name: "img2" }, { name: "img3" }, { name: "img4" }, { name: "img5" }, { name: "img6" }]),
+//     (req, res) => {
+//       async function uploadImg() {
+//         try {   
+//           const room_id = req.body.room_id;
+//           let files = req.files;
+//           let img_arr = [];
+//           for (let key in files) {
+//             if (files.hasOwnProperty(key)) {
+//               let result = await cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
+//                 if (error) {
+//                   throw new Error(error);
+//                 }
+//                 return result;
+//               }).end(files[key][0].buffer);
+//               img_arr.push(result.secure_url);
+//             }
+//           }
+          
+//           let main_img = img_arr[0];
+//           let data = await RoomData.findByIdAndUpdate({ _id: room_id }, {
+//             $set: {
+//               room_main_img: main_img,
+//               room_images: img_arr,
+//             }
+//           });
+  
+//           let hotel_data = await HotelData.findOne({ _id: data.hotel_data[0].hotel_id });
+//           let rooms = hotel_data.hotel_rooms;
+//           let d = rooms.map((val) => {
+//             if (val.room_id === room_id) {
+//               val.room_pic = main_img;
+//               return val;
+//             } else {
+//               return val;
+//             }
+//           });
+//           hotel_data.hotel_rooms = d;
+//           await hotel_data.save();
+  
+//           res.status(201).json({ msg: "Room Images Saved", status: true });
+  
+//         } catch (e) {
+//           console.log("Image uploading error", e);
+//           res.status(201).json({ msg: "Saving Room Images Unsuccessful", status: false });
+//         }
+//       }
+//       uploadImg();
+//     }
+//   );
 
 app.post("/find/rooms", (req, res)=>{
     async function findRooms(){
