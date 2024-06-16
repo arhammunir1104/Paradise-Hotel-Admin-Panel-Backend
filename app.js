@@ -479,7 +479,7 @@ app.post("/updateroom" ,(req, res)=>{
 // upload2.fields([{name: "img1" }, {name: "img2" } , {name: "img3" }, {name: "img4" }, {name: "img5" }, {name: "img6" }])
 
 app.post("/uploadroomimage" , (req, res)=>{
-    console.log(req.files);
+    console.log( "images" , req.files);
     console.log( "Image", req.files.img1[0])
     async function uploadImg(){
         try{   
