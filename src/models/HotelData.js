@@ -10,10 +10,12 @@ let HotelDataSchema = new mongoose.Schema({
     },
     hotel_logo: {
         type: String,
+        default: ""
     },
     hotel_city: {
         type: String,
-        lowercase: true
+        lowercase: true,
+        default: ""
     },
     total_hotel_rooms: {
         type: Number,
@@ -21,7 +23,8 @@ let HotelDataSchema = new mongoose.Schema({
     },
     hotel_add: {
         type: String,
-        lowercase: true
+        lowercase: true,
+        default: ""
     },
     hotel_total_revenue:{
         type: Number,
@@ -47,10 +50,12 @@ let HotelDataSchema = new mongoose.Schema({
         type: String
     },
     hotel_contact_no: {
-        type : String
+        type : String,
+        default: ""
     },
     hotel_des:{
-        type: String
+        type: String,
+        default: ""
     },
     tokens :[{
         token: {
