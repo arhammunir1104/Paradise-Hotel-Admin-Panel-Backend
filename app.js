@@ -1032,6 +1032,7 @@ app.post("/cancelreservation2", (req, res)=>{
 app.post("/closereservation2", (req, res)=>{
     async function closeReservation(){
         let {room_id ,reservation_id } = req.body;
+        console.log(req.body);
         try{
             let reservation = await ReservationDetails.findByIdAndUpdate({_id: reservation_id}, {
                 $set: {
