@@ -873,8 +873,8 @@ app.post("/confirmedreservation", (req, res)=>{
     };
     findConfirmReservation();
 });
-app.post("/closereservation", (req, res)=>{
-    async function findCloseReservation(){
+app.post("/closereservation", (req, res)=>{ 
+    async function findCloseReservation(){ 
         try{
             let {token} = req.body;
             let verify = await verification({token: token});
@@ -1029,7 +1029,7 @@ app.post("/cancelreservation2", (req, res)=>{
     cancelReservation();
 });
 
-app.post("/closereservation", (req, res)=>{
+app.post("/closereservation2", (req, res)=>{
     async function closeReservation(){
         let {room_id ,reservation_id } = req.body;
         try{
